@@ -1,14 +1,5 @@
-//*****************************************
-// NEC (Japanese) Infrared code sending library for the Arduino
-// Send a standard NEC 4 byte protocol direct to an IR LED on the define pin
-// Assumes an IR LED connected on I/O pin to ground, or equivalent driver.
-// Tested on a Freetronics Eleven Uno compatible
-// Written by David L. Jones www.eevblog.com
-// Youtube video explaining this code: http://www.youtube.com/watch?v=BUvFGTxZBG8
-// License: Creative Commons CC BY
-//*****************************************
 
-#define IRLEDpin  5              //the arduino pin connected to IR LED to ground. HIGH=LED ON
+#define IRLEDpin  2              //the arduino pin connected to IR LED to ground. HIGH=LED ON
 #define BITtime   562            //length of the carrier bit in microseconds
 
 struct Button {
@@ -24,9 +15,6 @@ uint32_t makeNEC(uint8_t addr, uint8_t cmd) {
 }
 
 // ADDR (8 bits) | INV_ADDR (8 bits) | CMD (8 bits) | INV_CMD (8 bits)
-uint8_t ADDRESS = 0x20;   
-
-const uint8_t PowerTracker = 0;
 
 const uint32_t PowerOn     = makeNEC(0x20, 0x23);
 const uint32_t PowerOff    = makeNEC(0x20, 0xA3);
@@ -51,27 +39,30 @@ const uint32_t HomeMenu    = makeNEC(0x20, 0xC2);
 const uint32_t Back        = makeNEC(0x20, 0x14);
 
 Button Buttons[] = {
-  {6, PowerOn},
-  {7, VolumeUp},
-  {8, VolumeDown},
-  {0, ArrowUp},
-  {15, ArrowDown},
-  {2, HomeMenu},
-  {4, Back},
-  {16, Enter}
+  {4, PowerOn},
+  {5, VolumeUp},
+  {18, VolumeDown},
+  {19, ArrowUp},
+  {21, ArrowDown},
+  {22, HomeMenu},
+  {23, Back},
+  {25, Enter},
+  {26, PowerOff}
 };
 
 
 
 void setup()
 {
+  IRsetup();                       //Only need to call this once to setup
+
 }
 
 void IRsetup()
 {
   pinMode(IRLEDpin, OUTPUT);
-  for(int i = 0; i < Buttons.size(); i++){
-    pinMode(Buttons[i].pin,INPUT);
+  for(Button &button : Buttons){
+    pinMode(button.pin, INPUT_PULLUP);
   }
   digitalWrite(IRLEDpin, LOW);    //turn off IR LED to start
 
@@ -93,9 +84,8 @@ void IRcarrier(int IRtimemicroseconds)
 }
 
 //Sends the IR code in 4 byte NEC format
-void IRsendCode(uint32_t code))
+void IRsendCode(uint32_t code)
 {
-    IRsetup();                       //Only need to call this once to setup
 
   //send the leading pulse
   IRcarrier(9000);            //9ms of carrier
@@ -116,11 +106,9 @@ void IRsendCode(uint32_t code))
 
 void loop()                           //some demo main code
 {
-  for(Button button : Buttons){
-    if(digitalRead(button.pin) == HIGH){
+  for(Button &button : Buttons){
+    if(digitalRead(button.pin) == LOW){
       IRsendCode(button.code);
     }
   }
-  delay(50);
-
 }
