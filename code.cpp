@@ -38,13 +38,13 @@ const uint32_t HomeMenu    = makeNEC(0x20, 0xC2);
 const uint32_t Back        = makeNEC(0x20, 0x14);
 //pin 0 2 12 15 to be avoided for buttons
 Button Buttons[] = {
-  {16, PowerOn},
+  {16, PowerOn}, 
   {17, VolumeUp},
-  {5, VolumeDown},
+  {26, VolumeDown},
   {18, ArrowUp},
   {19, ArrowDown},
   {21, HomeMenu},
-  {2, Back},
+  {25, Back},
   {23, Enter},
   {22, PowerOff}
 };
@@ -62,7 +62,7 @@ void IRsetup()
 {
   pinMode(IRLEDpin, OUTPUT);
   for(Button &button : Buttons){
-    pinMode(button.pin, INPUT);
+    pinMode(button.pin, INPUT_PULLUP);
   }
   digitalWrite(IRLEDpin, LOW);    //turn off IR LED to start
 
@@ -107,7 +107,7 @@ void IRsendCode(uint32_t code)
 void loop()                           //some demo main code
 {
   for(Button &button : Buttons){
-    if(digitalRead(button.pin) == HIGH){
+    if(digitalRead(button.pin) == LOW){
       Serial.print("Button ");
       Serial.println(button.pin);
       IRsendCode(button.code) ;
