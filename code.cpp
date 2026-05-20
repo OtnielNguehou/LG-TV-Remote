@@ -1,7 +1,6 @@
 
-#define IRLEDpin  2              //the arduino pin connected to IR LED to ground. HIGH=LED ON
+#define IRLEDpin  4              //the arduino pin connected to IR LED to ground. HIGH=LED ON
 #define BITtime   562            //length of the carrier bit in microseconds
-
 struct Button {
   int pin;
   uint32_t code;
@@ -37,23 +36,24 @@ const uint32_t ArrowRight  = makeNEC(0x20, 0x60);
 
 const uint32_t HomeMenu    = makeNEC(0x20, 0xC2);
 const uint32_t Back        = makeNEC(0x20, 0x14);
-
+//pin 0 2 12 15 to be avoided for buttons
 Button Buttons[] = {
-  {4, PowerOn},
-  {5, VolumeUp},
-  {18, VolumeDown},
-  {19, ArrowUp},
-  {21, ArrowDown},
-  {22, HomeMenu},
-  {23, Back},
-  {25, Enter},
-  {26, PowerOff}
+  {16, PowerOn},
+  {17, VolumeUp},
+  {5, VolumeDown},
+  {18, ArrowUp},
+  {19, ArrowDown},
+  {21, HomeMenu},
+  {2, Back},
+  {23, Enter},
+  {22, PowerOff}
 };
 
 
 
 void setup()
 {
+  Serial.begin(115200);
   IRsetup();                       //Only need to call this once to setup
 
 }
@@ -62,7 +62,7 @@ void IRsetup()
 {
   pinMode(IRLEDpin, OUTPUT);
   for(Button &button : Buttons){
-    pinMode(button.pin, INPUT_PULLUP);
+    pinMode(button.pin, INPUT);
   }
   digitalWrite(IRLEDpin, LOW);    //turn off IR LED to start
 
@@ -107,8 +107,10 @@ void IRsendCode(uint32_t code)
 void loop()                           //some demo main code
 {
   for(Button &button : Buttons){
-    if(digitalRead(button.pin) == LOW){
-      IRsendCode(button.code);
+    if(digitalRead(button.pin) == HIGH){
+      Serial.print("Button ");
+      Serial.println(button.pin);
+      IRsendCode(button.code) ;
     }
-  }
+  }delay(50);
 }
