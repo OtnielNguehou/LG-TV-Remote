@@ -113,4 +113,6 @@ void loop()                           //some demo main code
       IRsendCode(button.code) ;
     }
   }delay(50);
+  Serial.println(digitalRead(16));
+  delay(100);
 }
