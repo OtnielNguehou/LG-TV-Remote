@@ -12,3 +12,5 @@ Because every TV manufactere uses a different address for every packet sent from
 Since I do not have a remote to decode, I had to dig to find the exact codes for the LG TV remote. Most of the sources I visited pointed to a commonly used standard set of NEC codes(![alt text](image-1.png))
 
 Which codes, I could now start programming. I decided to use an ESP 32 because it allows or scalbity of the project in the future. I also  used the youtuber EEVblog's video "IR Remote Control Arduino Protocol Tutorial" and his github code(linked in the description) as template to get started.
+
+wirimg: ![alt text](image.png)
