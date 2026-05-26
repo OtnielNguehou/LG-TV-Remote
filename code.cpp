@@ -5,12 +5,17 @@ struct Button {
   int pin;
   uint32_t code;
 };
-
+uint8_t reverseBits(uint8_t b) {
+  b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+  b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+  b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+  return b;
+}
 uint32_t makeNEC(uint8_t addr, uint8_t cmd) {
-  return (addr << 24) |
-         ((uint8_t)~addr << 16) |
-         (cmd << 8) |
-         (uint8_t)~cmd;
+  return ((uint32_t)reverseBits(addr)   << 24) |
+         ((uint32_t)reverseBits(~addr)  << 16) |
+         ((uint32_t)reverseBits(cmd)    <<  8) |
+          (uint32_t)reverseBits(~cmd);
 }
 
 // ADDR (8 bits) | INV_ADDR (8 bits) | CMD (8 bits) | INV_CMD (8 bits)
@@ -38,6 +43,7 @@ const uint32_t HomeMenu    = makeNEC(0x20, 0xC2);
 const uint32_t Back        = makeNEC(0x20, 0x14);
 //pin 0 2 12 15 to be avoided for buttons
 Button Buttons[] = {
+  {5,ChannelUp},
   {16, PowerOn}, 
   {17, VolumeUp},
   {26, VolumeDown},
@@ -54,7 +60,7 @@ Button Buttons[] = {
 void setup()
 {
   Serial.begin(115200);
-  IRsetup();                       //Only need to call this once to setup
+  Serial2.begin(11);
 
 }
 
@@ -106,13 +112,15 @@ void IRsendCode(uint32_t code)
 
 void loop()                           //some demo main code
 {
+  IRsetup();                       //Only need to call this once to setup
   for(Button &button : Buttons){
     if(digitalRead(button.pin) == LOW){
       Serial.print("Button ");
       Serial.println(button.pin);
-      IRsendCode(button.code) ;
+      Serial.println(button.code);
+      IRsendCode(button.code);
+      
     }
-  }delay(50);
-  Serial.println(digitalRead(16));
-  delay(100);
+  }
+  delay(50);
 }
